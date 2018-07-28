@@ -1,3 +1,13 @@
+//=========================================
+// LIRI BOT API APP
+//=========================================
+// Author: Gabe Scoggin
+// Copyright: Gabriel Scoggin 2018
+// Last updated: 2018.07.28
+// APIs used: Twitter API, Spotify API, OMDB API
+// NPM Packages used: request, twitter, node-spotify-api
+//=========================================
+
 //npm rquired packages to make the app work
 require("dotenv").config();
 var fs = require('fs');
@@ -10,7 +20,7 @@ var Spotify = require('node-spotify-api')
 var spotify = new Spotify(keys.spotify);
 var client = new Twitter(keys.twitter);
 
-//Set divider variables to help make the output pretty
+//set divider variables to help make the output pretty
 var mainDivider = "========================================";
 var minorDivider = "----------------------------------------";
 
@@ -27,7 +37,7 @@ var params = {
 //Variable to print Twitter handle nicely
 var handle = "@californiaStuck"
 
-//function to call the twitter API
+//function to call the twitter API, command will be 'my-tweets'
 function getTweets() {
   client.get('statuses/user_timeline', params, function (error, tweets, response) {
     if (!error) {
@@ -38,8 +48,7 @@ function getTweets() {
   });
 }
 
-// * `spotify-this-song`
-
+//function to call the spotify API, command will be 'spotify-this-song', parameter will be a song title
 function spotifyThis(songTitle) {
   spotify.search({
     type: 'track',
@@ -53,9 +62,7 @@ function spotifyThis(songTitle) {
   });
 }
 
-//Advice from use .split to split the content of the random.txt file into two. 
-//fs.read will return a string. need to parse that with split into the commands. 
-
+//function to call the OMDB API, command will be 'movie-this', parameter will be a movie title
 function movieThis(movieTitle) {
   request("http://www.omdbapi.com/?t=" + movieTitle + "&plot=short&apikey=trilogy", function (error, response, body) {
     if (JSON.parse(body).Response === 'False') {
@@ -72,6 +79,9 @@ function movieThis(movieTitle) {
   })
 };
 
+//function to read from the txt file and run whatever is in that text file.
+//fs.read will return a string. need to parse that with split into the commands. 
+//.split to "split" the content of the random.txt file on the comma 
 function doWhatItSays() {
   fs.readFile("random.txt", "utf8", function (err, data) {
     if (err) {
@@ -85,50 +95,22 @@ function doWhatItSays() {
   });
 }
 
-
+//TODO another implementation options would be to use a switch command, in place of if then logic
 var masterFunction = function (command, value) {
-    if (command === "my-tweets") {
-      getTweets();
-    } else if (command === "spotify-this-song") {
-      spotifyThis(value);
+  if (command === "my-tweets") {
+    getTweets();
+  } else if (command === "spotify-this-song") {
+    spotifyThis(value);
 
-    } else if (command === "movie-this") {
-      movieThis(value);
+  } else if (command === "movie-this") {
+    movieThis(value);
 
-    } else if (command === "do-what-it-says") {
-      doWhatItSays();
+  } else if (command === "do-what-it-says") {
+    doWhatItSays();
 
-    } 
-    else { 
-      listCommands();
-    }
+  } else {
+    listCommands();
   }
+}
 
-    masterFunction(process.argv[2] || null, process.argv[3] || null);
-
-    // if (process.argv[2] == "my-tweets") {
-
-    //   getTweets();
-
-    // } else if (process.argv[2] == "spotify-this-song") {
-
-    //   spotifyThis(process.argv[3]);
-
-    // } else if (process.argv[2] == "movie-this") {
-
-    //   movieThis(process.argv[3]);
-
-    // } else if (process.argv[2] == "do-what-it-says") {
-
-    //   readFile();
-
-    // } else {
-
-    //   listCommands();
-
-    // };
-
-    // // * `do-what-it-says`
-    // Using the fs Node package, LIRI will take the text inside of random.txt and then use it to call one of LIRI's commands.
-    // It should run spotify-this-song for "I Want it That Way," as follows the text in random.txt.
-    // Feel free to change the text in that document to test out the feature for other commands.
+masterFunction(process.argv[2] || null, process.argv[3] || null);
